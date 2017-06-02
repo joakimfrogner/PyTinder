@@ -1,6 +1,6 @@
 import json
 import requests
-import config
+import utils.tinder.config as config
 # from datetime import datetime
 
 headers = {

@@ -1,8 +1,8 @@
-from api_usage import tinder, calculate_age, get_photos, get_image_cv2
+from utils.tinder.api_usage import tinder, calculate_age, get_photos, get_image_cv2
 from pprint import pprint
-from config import dir_liked, dir_disliked, dir_matched, dir_liked_txt, dir_disliked_txt, dir_matched_txt
+from utils.tinder.config import dir_liked, dir_disliked, dir_matched, dir_liked_txt, dir_disliked_txt, dir_matched_txt
 
-import tinder_api as api
+import utils.tinder.tinder_api as api
 
 import cv2
 import os

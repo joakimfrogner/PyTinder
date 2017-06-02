@@ -1,8 +1,8 @@
 from datetime import date, datetime
 # from threading import Thread
 # import time
-import tinder_api as api
-import config
+import utils.tinder.tinder_api as api
+import utils.tinder.config as config
 
 import cv2
 
