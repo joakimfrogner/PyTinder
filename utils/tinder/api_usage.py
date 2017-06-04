@@ -1,6 +1,5 @@
 from datetime import date, datetime
-# from threading import Thread
-# import time
+
 import utils.tinder.tinder_api as api
 import utils.tinder.config as config
 
@@ -17,14 +16,14 @@ This file collects important data on your matches,
 allows you to sort them by last_activity_date, age,
 gender, message count, and their average successRate.
 
-The only thing that is not supported on this is 
+The only thing that is not supported on this is
 getting your matches distance as this requires a
 different api call [api.get_person(id)] which would
 severely slow down the data collection into match_info.
 
 So, since it is not entirely important to have distance,
 we will proceed without it. Perhaps further down the road
-I will cache this information so that it does not have to 
+I will cache this information so that it does not have to
 be re-retrieved every time you refresh your match updates.
 
 '''
@@ -74,7 +73,7 @@ def get_match_info():
 		    print(message)
 	return match_info
 
-# Query by match name 
+# Query by match name
 def get_match_id_by_name(name):
 	global match_info
 	list_of_ids = []
@@ -148,7 +147,7 @@ def tinder():
 	else:
 		print("Something went wrong. You were not authorized.")
 		return None
-	
+
 
 def get_image_cv2(url):
 	try:

@@ -1,13 +1,13 @@
 from utils.tinder.api_usage import tinder, calculate_age, get_photos, get_image_cv2
-from pprint import pprint
 from utils.tinder.config import dir_liked, dir_disliked, dir_matched, dir_liked_txt, dir_disliked_txt, dir_matched_txt
+from utils.tinder import tinder_api as api
+from utils import keys
 
-import utils.tinder.tinder_api as api
-
+from pprint import pprint
 import cv2
-import os
-
 import numpy as np
+
+left, right, up, down = keys.load_keys()
 
 matches = tinder()
 
@@ -48,19 +48,23 @@ while True:
             cv2.imshow(image_title, image)
 
             key = cv2.waitKey(0) & 0xFF
+
             if key == 27:
                 cv2.destroyAllWindows()
                 exit()
-            elif key == 83:
+            elif key == right:
                 # next
                 if i == len(photos) - 1:
                     i = 0
                 else:
                     i += 1
-            elif key == 81:
+            elif key == left:
                 # prev
-                i -= 2
-            elif key == 82:
+                if i == 0:
+                    i = len(photos)-1
+                else:
+                    i -= 1
+            elif key == up:
                 api.like(usr_id)
 
                 for j in range(len(photos)):
@@ -69,21 +73,21 @@ while True:
                         continue
 
                     cv2.imwrite(dir_liked+"{}-{}.jpg".format(usr_id, j), img)
-                
+
                 with open(dir_liked_txt+"{}.json".format(usr_id), "w") as f:
                     del card["photos"]
                     f.write(str(card))
 
                 cv2.destroyWindow(image_title)
                 break
-            elif key == 84:
+            elif key == down:
                 api.dislike(usr_id)
 
                 for j in range(len(photos)):
                     ret, img = get_image_cv2(photos[j])
                     if not ret:
                         continue
-                        
+
                     cv2.imwrite(dir_disliked+"{}-{}.jpg".format(usr_id, j), img)
 
                 with open(dir_disliked_txt+"{}.json".format(usr_id), "w") as f:
