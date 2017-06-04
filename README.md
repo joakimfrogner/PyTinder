@@ -16,4 +16,4 @@ Tinder AI written in python
 - python3 tinder.py
 
 # Tinder API Documentation
-<a href='https://gist.github.com/rtt/10403467#file-tinder-api-documentation-md'>@rtt</a>
+<a href='https://gist.github.com/rtt/10403467#file-tinder-api-documentation-md'>Here</a>
