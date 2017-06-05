@@ -5,7 +5,6 @@ import utils.tinder.config as config
 
 import cv2
 
-import urllib.request as geturl
 import numpy as np
 
 
@@ -147,15 +146,3 @@ def tinder():
 	else:
 		print("Something went wrong. You were not authorized.")
 		return None
-
-
-def get_image_cv2(url):
-	try:
-		resp = geturl.urlopen(url)
-		image = np.asarray(bytearray(resp.read()), dtype="uint8")
-		image = cv2.imdecode(image, cv2.IMREAD_COLOR)
-	except:
-		print("Could not get url: {}".format(url))
-		return False, None
-
-	return True, image

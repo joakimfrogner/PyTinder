@@ -1,5 +1,6 @@
 __pycache__
 .vscode
-utils/tinder/config.py
+config.py
 result.txt
 keys.txt
+tinder.conf

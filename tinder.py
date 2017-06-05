@@ -1,13 +1,20 @@
-from utils.tinder.api_usage import tinder, calculate_age, get_photos, get_image_cv2
+from utils.tinder.api_usage import tinder, calculate_age, get_photos
 from utils.tinder.config import dir_liked, dir_disliked, dir_matched, dir_liked_txt, dir_disliked_txt, dir_matched_txt
+from utils.imgutils import combine_imgs, get_image_from_url, scale_img
 from utils.tinder import tinder_api as api
 from utils import keys
 
 from pprint import pprint
 import cv2
 import numpy as np
+import sys
 
-left, right, up, down = keys.load_keys()
+if len(sys.argv) > 1 and sys.argv[1] == "-v":
+    verbose = True
+else:
+    verbose = False
+
+key_like, key_dislike = keys.load_keys()
 
 matches = tinder()
 
@@ -20,81 +27,79 @@ while True:
         print("Could not fetch data ({})".format(rec["message"]))
         break
 
-    for i in range(len(data)):
-        card = data[i]
-        usr_id = card["_id"]
-        name = card["name"]
-        age = calculate_age(card["birth_date"])
-        gender = card["gender"]
-        distance = int(card["distance_mi"]) * 1.60934
+    profiles = []
 
-        if gender:
-            gender = "Female"
+    for i in range(len(data)): 
+        usr_id = data[i]["_id"]
+        name = data[i]["name"]
+        age = calculate_age(data[i]["birth_date"])
+        distance = int(int(data[i]["distance_mi"]) * 1.60934)
+
+        photo_urls = get_photos(data[i])
+        photos = []
+
+        for url in photo_urls:
+            ret, img = get_image_from_url(url)
+
+            if ret:
+                r, img = scale_img(img, 300)
+                photos.append(img)
+
+        profile = {
+            "id": usr_id,
+            "name":name,
+            "age":age,
+            "distance":distance,
+            "photos":photos
+        }
+
+        if verbose:
+            print("{} :: {}, {} years, {} km away ({} photos).".format(i, profile["name"], profile["age"], profile["distance"], len(profile["photos"])))
         else:
-            gender = "Male"
+            print("Loading... {} of {}".format(i+1, len(data)), end="\r")
 
-        photos = get_photos(card)
+        if len(photos) == 0:
+            if verbose:
+                print("^ NO PHOTOS AVAILABLE -- SKIPPING")
+        else:   
+            profiles.append(profile)
 
-        print("{} :: {}, {} years, {}, {} km away ({} photos).".format(i, name, age, gender, distance, len(photos)))
+    print("\nDone")
 
-        i = 0
+    for i in range(len(profiles)):
+        profile = profiles[i]
+        combined = profile["photos"][0]
 
-        while i < len(photos):
-            ret, image = get_image_cv2(photos[i])
-            if not ret:
-                continue
+        for photo in profile["photos"][1:]:
+            combined = combine_imgs(combined, photo)
 
-            image_title = "[" + str(i+1) + "/" + str(len(photos)) + "] - " + name + " - " + str(age) + " years - " + str(distance) + " km away"
-            cv2.imshow(image_title, image)
+        image_title = name + " - " + str(age) + " years - " + str(distance) + " km away"
+        cv2.imshow(image_title, combined)
 
-            key = cv2.waitKey(0) & 0xFF
+        key = cv2.waitKey(0) & 0xFF
 
-            if key == 27:
-                cv2.destroyAllWindows()
-                exit()
-            elif key == right:
-                # next
-                if i == len(photos) - 1:
-                    i = 0
-                else:
-                    i += 1
-            elif key == left:
-                # prev
-                if i == 0:
-                    i = len(photos)-1
-                else:
-                    i -= 1
-            elif key == up:
-                api.like(usr_id)
+        if key == 27:
+            cv2.destroyAllWindows()
+            exit()
 
-                for j in range(len(photos)):
-                    ret, img = get_image_cv2(photos[j])
-                    if not ret:
-                        continue
+        elif key == key_like:
+            api.like(profile["id"])
 
-                    cv2.imwrite(dir_liked+"{}-{}.jpg".format(usr_id, j), img)
+            for j in range(len(profile["photos"])):
+                cv2.imwrite(dir_liked+"{}-{}.jpg".format(profile["id"], j), profile["photos"][j])
 
-                with open(dir_liked_txt+"{}.json".format(usr_id), "w") as f:
-                    del card["photos"]
-                    f.write(str(card))
+            with open(dir_liked_txt+"{}.json".format(usr_id), "w") as f:
+                del data[i]["photos"]
+                f.write(str(str(data[i]).encode("utf-8")))
 
-                cv2.destroyWindow(image_title)
-                break
-            elif key == down:
-                api.dislike(usr_id)
+        elif key == key_dislike:
+            api.dislike(profile["id"])
 
-                for j in range(len(photos)):
-                    ret, img = get_image_cv2(photos[j])
-                    if not ret:
-                        continue
+            for j in range(len(profile["photos"])):
+                cv2.imwrite(dir_disliked+"{}-{}.jpg".format(profile["id"], j), profile["photos"][j])
 
-                    cv2.imwrite(dir_disliked+"{}-{}.jpg".format(usr_id, j), img)
+            with open(dir_disliked_txt+"{}.json".format(profile["id"]), "w") as f:
+                del data[i]["photos"]
+                f.write(str(str(data[i]).encode("utf-8")))
 
-                with open(dir_disliked_txt+"{}.json".format(usr_id), "w") as f:
-                    del card["photos"]
-                    f.write(str(card))
-
-                cv2.destroyWindow(image_title)
-                break
-
-            cv2.destroyWindow(image_title)
+        cv2.destroyWindow(image_title)
