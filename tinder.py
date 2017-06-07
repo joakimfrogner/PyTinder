@@ -1,6 +1,6 @@
-from utils.tinder.api_usage import tinder, calculate_age, get_photos
-from utils.tinder.config import dir_liked, dir_disliked, dir_matched, dir_liked_txt, dir_disliked_txt, dir_matched_txt
+from utils.tinder.api_usage import load_tinder, calculate_age, get_photos
 from utils.imgutils import combine_imgs, get_image_from_url, scale_img
+from utils.config import dir_liked, dir_disliked, dir_matched, dir_liked_txt, dir_disliked_txt, dir_matched_txt
 from utils.tinder import tinder_api as api
 from utils import keys
 
@@ -16,7 +16,7 @@ else:
 
 key_like, key_dislike = keys.load_keys()
 
-matches = tinder()
+matches = load_tinder()
 
 while True:
     rec = api.get_recommendations()
@@ -73,7 +73,7 @@ while True:
         for photo in profile["photos"][1:]:
             combined = combine_imgs(combined, photo)
 
-        image_title = name + " - " + str(age) + " years - " + str(distance) + " km away"
+        image_title = profile["name"] + " - " + str(age) + " years - " + str(distance) + " km away"
         cv2.imshow(image_title, combined)
 
         key = cv2.waitKey(0) & 0xFF

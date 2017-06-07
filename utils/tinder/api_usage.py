@@ -1,7 +1,7 @@
 from datetime import date, datetime
 
 import utils.tinder.tinder_api as api
-import utils.tinder.config as config
+import utils.config as config
 
 import cv2
 
@@ -140,7 +140,7 @@ def see_friends_profiles(name=None):
 		if result_dict == {}: return "No friends by that name"
 		return result_dict
 
-def tinder():
+def load_tinder():
 	if api.authverif() == True:
 		return get_match_info()
 	else:

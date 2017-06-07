@@ -6,10 +6,8 @@ def combine_imgs(img1, img2):
 	h1, w1 = img1.shape[:2]
 	h2, w2 = img2.shape[:2]
 
-	#create empty matrix
 	combined = np.zeros((max(h1, h2), w1+w2,3), np.uint8)
 
-	#combine 2 images
 	combined[:h1, :w1,:3] = img1
 	combined[:h2, w1:w1+w2,:3] = img2
 
